@@ -3,9 +3,11 @@ const { google } = require("googleapis");
 const dontenv = require("dotenv");
 const generateCertificate = require("./lib/pdfGenarator");
 const stream = require("stream");
+const cors = require("cors")
 const fs = require('fs') ;
-const { shareFileToAnyone } = require("./lib/driveUtility");
 dontenv.config();
+
+
 
 const app = express();
 app.use(express.json()); 
@@ -18,8 +20,9 @@ oauth2Client.setCredentials({
   refresh_token: process.env.REFRESH_TOKEN,
 });
 
+app.use(cors()) ;
+
 const drive = google.drive({ version: "v3", auth: oauth2Client });
-shareFileToAnyone("1IhpVxsW3xXll5L7E6oeyo3WNu2FkjhLw") ;
 app.post("/generate", async (req, res) => {
   try {
     const { name, date } = req.body;
@@ -41,7 +44,7 @@ app.post("/generate", async (req, res) => {
         fields: "id",
       });
 
-      res.status(200).send({ fileId: response.data.id });
+      res.status(200).send({ fileId: response.data.id, pdfLink : `https://drive.google.com/file/d/${response.data.id}/view?usp=drive_link` });
   } catch (err) {
     console.error("Error generating certificate:", err);
     res.status(500).send({ error: "Failed to generate certificate" });
