@@ -1,4 +1,5 @@
 certificates
-genarate
+genarate/** 
+!genarate/INFO.txt
 node_modules
 .env

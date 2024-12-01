@@ -32,10 +32,13 @@ app.post("/generate", async (req, res) => {
         name: `${name}-${new Date().toISOString()}.pdf`, 
         mimeType: "application/pdf", 
       };
-
+      const filePath = generateCertificate(name,date)
+      await new Promise((r)=>{
+        setTimeout(()=>{r()},100)
+      }) ;
       const media = {
         mimeType: "application/pdf",
-        body: fs.createReadStream(generateCertificate(name,date)), 
+        body: fs.createReadStream(filePath), 
       };
 
       const response = await drive.files.create({
@@ -45,6 +48,17 @@ app.post("/generate", async (req, res) => {
       });
 
       res.status(200).send({ fileId: response.data.id, pdfLink : `https://drive.google.com/file/d/${response.data.id}/view?usp=drive_link` });
+      setTimeout(()=>{
+        console.log(filePath," File is trying to remove")
+        fs.unlink(filePath,(err)=>{
+          if(err){
+            console.log(filePath , " Failed To Delete")
+          }
+          else {
+            console.log("Success fully Deleted the ", filePath) ;
+          }
+        }) ;
+      },5000)
   } catch (err) {
     console.error("Error generating certificate:", err);
     res.status(500).send({ error: "Failed to generate certificate" });
@@ -52,5 +66,5 @@ app.post("/generate", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log("Server running on http://localhost:5000");
+  console.log("Server running on http://localhost:"+PORT);
 });
