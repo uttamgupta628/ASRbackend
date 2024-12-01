@@ -27,7 +27,7 @@ app.post("/generate", async (req, res) => {
   try {
     const { name, date } = req.body;
     
-
+    console.log(req.body) ;
       const fileMetadata = {
         name: `${name}-${new Date().toISOString()}.pdf`, 
         mimeType: "application/pdf", 
